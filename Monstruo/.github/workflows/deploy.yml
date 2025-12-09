@@ -1,0 +1,43 @@
+# .github/workflows/deploy.yml
+name: Deploy a Monstruo
+
+# Dispara este workflow en cada push a la rama 'main'
+on:
+  push:
+    branches:
+      - main
+
+# Define los permisos necesarios para que la acción pueda escribir en GitHub Pages
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout del código
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Configuración de Node.js (necesario para npm)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Usa una versión de Node.js estable (o la que uses localmente)
+
+      # 3. Instalación de dependencias (incluyendo gh-pages)
+      - name: Install dependencies
+        run: npm install
+
+      # 4. Compilación del proyecto Vite (genera la carpeta dist)
+      - name: Build project
+        run: npm run build
+
+      # 5. Despliegue en GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist # La carpeta de salida de Vite
+          publish_branch: gh-pages # La rama donde se suben los archivos estáticos
